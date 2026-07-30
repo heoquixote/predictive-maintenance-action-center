@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>예지보전 실행 센터</title>
+  <link rel="stylesheet" href="style.css?v=20260730-17">
+  <script src="tableau.extensions.1.latest.min.js"></script>
+  <script defer src="mock-data.js"></script>
+  <script defer src="app.js?v=20260730-17"></script>
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">제조 운영</p>
+        <h1>예지보전 실행 센터</h1>
+      </div>
+      <span id="modeBadge" class="mode-badge">초기화 중</span>
+    </header>
+
+    <section id="demoControls" class="demo-controls" hidden>
+      <label for="machineSelect">데모 설비</label>
+      <select id="machineSelect" aria-label="테스트할 설비"></select>
+      <button id="demoButton" class="button subtle" type="button">데모 모드</button>
+    </section>
+
+    <details id="debugPanel" class="debug-panel">
+      <summary>
+        <span>Tableau 연결 진단</span>
+        <span id="debugSummaryStatus" class="debug-summary-status">확인 중</span>
+      </summary>
+      <div class="debug-grid">
+        <span>API 상태</span><strong id="debugApiStatus">초기화 중</strong>
+        <span>감지 시트</span><strong id="debugWorksheets">-</strong>
+        <span>마지막 이벤트</span><strong id="debugEvent">-</strong>
+        <span>추출 설비 ID</span><strong id="debugMachineId">-</strong>
+      </div>
+      <pre id="debugPayload">아직 수신한 마크 데이터가 없습니다.</pre>
+    </details>
+
+    <section id="emptyState" class="empty-state">
+      <span class="empty-icon" aria-hidden="true">⌁</span>
+      <h2>Tableau에서 설비를 선택하세요.</h2>
+      <p>대시보드의 설비 마크를 클릭하거나 데모 모드를 사용하세요.</p>
+    </section>
+
+    <section id="machinePanel" hidden>
+      <div id="heroCard" class="hero-card">
+        <div>
+          <p class="label">선택된 설비</p>
+          <h2>설비 <span id="machineId"></span></h2>
+          <p id="lastReading" class="muted"></p>
+        </div>
+        <div class="risk-block">
+          <span id="riskBadge" class="risk-badge"></span>
+          <strong id="riskScore" class="score"></strong>
+          <span class="muted">센서 기반 위험 점수</span>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="card cause-card">
+          <p class="label">주요 원인</p>
+          <h3 id="primaryCause"></h3>
+          <p id="breakdownStatus" class="muted"></p>
+        </article>
+        <article class="card">
+          <p class="label">권장 조치</p>
+          <ul id="recommendations"></ul>
+        </article>
+      </div>
+
+      <article class="card">
+        <div class="section-title">
+          <h3>센서 상태</h3>
+          <span>최신 측정값</span>
+        </div>
+        <div id="sensorGrid" class="sensor-grid"></div>
+      </article>
+
+      <section class="analysis-section">
+        <div class="analysis-heading">
+          <div>
+            <p class="eyebrow">의사결정 분석</p>
+            <h2>위험 원인과 예상 영향</h2>
+          </div>
+        </div>
+
+        <div class="analysis-grid">
+          <article class="card analysis-card">
+            <div class="section-title">
+              <h3>원인 기여도</h3>
+              <span>센서 이상 기여 순위</span>
+            </div>
+            <div id="causeContribution" class="contribution-list"></div>
+          </article>
+
+          <article class="card analysis-card">
+            <div class="section-title">
+              <h3>기준치 비교</h3>
+              <span>현재값 대 관리 기준</span>
+            </div>
+            <div id="thresholdTable" class="threshold-table"></div>
+          </article>
+
+          <article class="card analysis-card">
+            <div class="section-title">
+              <h3>최근 30분 변화량</h3>
+            </div>
+            <div id="trendGrid" class="trend-grid"></div>
+          </article>
+
+          <article class="card analysis-card">
+            <div class="section-title">
+              <h3>유사 고장 사례</h3>
+            </div>
+            <div id="similarIncident"></div>
+          </article>
+        </div>
+
+        <article class="card impact-card">
+          <div class="section-title">
+            <h3>미조치 예상 영향</h3>
+          </div>
+          <div id="impactGrid" class="impact-grid"></div>
+          <div id="analysisSummary" class="analysis-summary"></div>
+        </article>
+      </section>
+
+      <article class="card">
+        <div class="section-title">
+          <h3>조치 이력</h3>
+          <button id="clearHistoryButton" class="text-button" type="button">이력 삭제</button>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </article>
+
+      <article class="card action-card">
+        <div class="action-heading">
+          <div>
+            <p class="eyebrow">다음 조치</p>
+            <h3>조치 실행</h3>
+          </div>
+          <p>분석 결과를 현장 실행으로 연결합니다.</p>
+        </div>
+        <div class="actions">
+          <button id="workOrderButton" class="button primary" type="button">작업지시 생성</button>
+          <button id="notifyButton" class="button secondary" type="button">유지보수팀 알림</button>
+          <button id="sopButton" class="button secondary" type="button">표준절차 보기</button>
+          <button id="escalateButton" class="button tertiary" type="button">이슈 상향 보고</button>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div id="statusMessage" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <dialog id="actionDialog">
+    <form method="dialog" class="dialog-card">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">조치 확인</p>
+          <h2 id="dialogTitle"></h2>
+        </div>
+        <button class="icon-button" value="cancel" aria-label="닫기">×</button>
+      </div>
+      <div id="dialogBody"></div>
+      <div class="dialog-actions">
+        <button class="button secondary" value="cancel">취소</button>
+        <button id="dialogConfirm" class="button primary" value="default">확인</button>
+      </div>
+    </form>
+  </dialog>
+</body>
+</html>
