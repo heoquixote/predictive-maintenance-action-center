@@ -93,6 +93,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initializeExtension() {
+  // ?demo=<설비 ID>가 있으면 Tableau 연결을 건너뛰고 해당 설비를 바로 표시합니다.
+  // 웹 페이지 개체처럼 Tableau 핸드셰이크가 오지 않는 iframe에서도 화면이 채워집니다.
+  const demoMachine = new URLSearchParams(location.search).get("demo");
+  if (demoMachine) {
+    updateDebug({ apiStatus: "데모 모드 (URL 파라미터)", machineId: demoMachine });
+    initializeDemoMode(null, demoMachine);
+    return;
+  }
+
   if (!window.tableau?.extensions) {
     updateDebug({ apiStatus: "실패: Tableau Extensions API 없음" });
     initializeDemoMode("Tableau Extensions API를 불러오지 못했습니다.");
@@ -243,11 +252,14 @@ async function loadMachineData(machineId) {
   }
 }
 
-function initializeDemoMode(message) {
+function initializeDemoMode(message, machineId) {
   $("modeBadge").textContent = "데모 모드";
   $("demoControls").hidden = false;
   $("demoButton").hidden = true;
-  renderMachine(window.MACHINE_DATA[$("machineSelect").value || "600"]);
+  const requested = String(machineId ?? "").trim();
+  const id = window.MACHINE_DATA?.[requested] ? requested : ($("machineSelect").value || "600");
+  $("machineSelect").value = id;
+  renderMachine(window.MACHINE_DATA[id]);
   if (message) showStatusMessage(message);
 }
 
