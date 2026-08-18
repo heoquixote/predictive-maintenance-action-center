@@ -92,6 +92,83 @@ APP_JS_PATCHES: list[tuple[str, str, str]] = [
 
 TREX_TEMPLATE_SUB = ("<url>http://localhost:8765/extension/index.html</url>", "<url>{url}</url>")
 
+LANDING_PAGE = """<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Predictive Maintenance Action Center</title>
+<style>
+  :root{--ink:#13213c;--muted:#68758a;--line:#dbe2ec;--surface:#fff;--bg:#f4f7fb;
+    --blue:#1769e0;--warning:#b46900;--shadow:0 10px 30px rgba(29,51,84,.08)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:720px;margin:auto;padding:44px 20px 64px}
+  .eyebrow{margin:0 0 6px;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.12em}
+  h1{margin:0 0 10px;font-size:30px;letter-spacing:-.02em}
+  .lede{margin:0 0 28px;color:var(--muted)}
+  .card{padding:20px;border:1px solid var(--line);border-radius:15px;
+    background:var(--surface);box-shadow:var(--shadow);margin-bottom:14px}
+  h2{margin:0 0 10px;font-size:17px}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 28px}
+  .button{display:inline-block;padding:11px 17px;border-radius:9px;
+    font-weight:700;text-decoration:none;font-size:14px}
+  .primary{background:var(--blue);color:#fff}
+  .secondary{border:1px solid #bac6d7;background:#fff;color:var(--ink)}
+  ol,ul{margin:0;padding-left:20px} li{margin-bottom:6px}
+  code{padding:1px 5px;border-radius:4px;background:#eef2f8;font-size:13px}
+  .note{border-left:3px solid var(--warning);background:#fffaf2}
+  .note h2{color:var(--warning)}
+  footer{margin-top:30px;color:var(--muted);font-size:13px}
+  a{color:var(--blue)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">TABLEAU DASHBOARD EXTENSION</p>
+  <h1>Predictive Maintenance Action Center</h1>
+  <p class="lede">설비 센서 이상을 위험 점수로 환산하고, 원인 분석과 권장 조치를 대시보드 안에서 바로 실행으로 연결하는 Tableau 익스텐션입니다.</p>
+
+  <div class="actions">
+    <a class="button primary" href="extension/predictive-maintenance.trex" download>.trex 파일 다운로드</a>
+    <a class="button secondary" href="extension/index.html">익스텐션 미리보기</a>
+  </div>
+
+  <div class="card">
+    <h2>Tableau Desktop에서 사용하기</h2>
+    <ol>
+      <li>위에서 <code>.trex</code> 파일을 다운로드합니다.</li>
+      <li>대시보드에서 개체 영역의 <strong>확장 프로그램</strong>을 끌어다 놓습니다.</li>
+      <li><strong>로컬 확장 프로그램 액세스</strong>를 선택하고 내려받은 <code>.trex</code>를 엽니다.</li>
+      <li>데이터 접근 대화상자에서 <strong>액세스 허용</strong>을 누릅니다.</li>
+      <li>워크시트 마크의 <strong>세부 정보</strong>에 <code>Machine ID</code>를 포함시킨 뒤 마크를 클릭합니다.</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2>연동이 안 될 때</h2>
+    <p style="margin:0 0 8px">익스텐션 상단의 <strong>Tableau 연결 진단</strong> 패널을 펼치면 API 상태, 감지된 시트, 마지막 이벤트, 추출된 설비 ID가 실시간으로 표시됩니다. 마크를 클릭했을 때 <em>마지막 이벤트</em>와 <em>추출 설비 ID</em>가 갱신되는지 확인하세요.</p>
+    <p style="margin:0">Tableau 없이 열면 자동으로 데모 모드로 전환되어 설비 600~605로 모든 기능을 시험할 수 있습니다.</p>
+  </div>
+
+  <div class="card note">
+    <h2>알아두실 점</h2>
+    <ul>
+      <li><strong>Slack 발송 기능은 제외되어 있습니다.</strong> 정적 호스팅에서는 서버 릴레이를 실행할 수 없어, 작업지시와 알림은 조치 이력에만 기록됩니다.</li>
+      <li><strong>Tableau Public에서는 사용할 수 없습니다.</strong> 직접 호스팅하는 network-enabled 익스텐션이기 때문입니다.</li>
+      <li><strong>Tableau Server / Cloud</strong>에서는 관리자가 이 사이트 URL을 익스텐션 안전 목록에 추가해야 합니다.</li>
+    </ul>
+  </div>
+
+  <footer>
+    소스: <a href="https://github.com/heoquixote/predictive-maintenance-action-center">github.com/heoquixote/predictive-maintenance-action-center</a>
+  </footer>
+</div>
+</body>
+</html>
+"""
+
 
 def apply_patches(source: str, patches: list[tuple[str, str, str]], label: str) -> str:
     for description, find, replace in patches:
@@ -152,6 +229,9 @@ def main() -> None:
         shutil.copy2(csv_src, BUILD_DIR / "data" / "machine_latest_status.csv")
     else:
         (BUILD_DIR / "data" / ".gitkeep").write_text("", encoding="utf-8")
+
+    # 배포 루트 랜딩 페이지 (공유 링크로 쓰이는 URL 이므로 404 가 되지 않게 합니다).
+    (BUILD_DIR / "index.html").write_text(LANDING_PAGE, encoding="utf-8")
 
     # GitHub Pages 의 Jekyll 처리를 건너뜁니다.
     (BUILD_DIR / ".nojekyll").write_text("", encoding="utf-8")
