@@ -19,7 +19,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 BUILD_DIR = PROJECT_ROOT / "build"
-CACHE_TAG = "static-1"
+CACHE_TAG = "static-2"
 
 BUILD_BANNER = (
     "// ⚠️ 정적 배포 빌드입니다. Slack 발송 기능이 제거되었습니다.\n"
