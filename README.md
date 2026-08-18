@@ -87,6 +87,31 @@ SLACK_ASSIGNEE_USER_ID=U로_시작하는_사용자_ID
 
 상세 절차는 [docs/tableau_setup.md](docs/tableau_setup.md)를 참고하십시오.
 
+## 배포 (GitHub Pages)
+
+서버 설치 없이 바로 사용할 수 있는 정적 배포본이 GitHub Pages에 올라가 있습니다.
+
+- 익스텐션: <https://heoquixote.github.io/predictive-maintenance-action-center/extension/index.html>
+- `.trex` 다운로드: <https://heoquixote.github.io/predictive-maintenance-action-center/extension/predictive-maintenance.trex>
+
+`.trex`를 내려받아 Tableau Desktop 대시보드에서 **Extension → 로컬 확장 프로그램 액세스**로 선택하면 됩니다.
+
+**배포본과 이 브랜치의 차이 — Slack 발송 기능이 제외되어 있습니다.** GitHub Pages는 정적 파일만 서빙하므로 `server.py`의 Slack 릴레이를 실행할 수 없습니다. 작업지시 생성과 유지보수팀 알림은 그대로 동작하지만 결과가 조치 이력에만 기록되고 Slack으로 전송되지 않습니다.
+
+배포본 재생성:
+
+```bash
+python3 scripts/build_static.py --base-url https://heoquixote.github.io/predictive-maintenance-action-center
+```
+
+`build/`가 생성되며, 이 내용을 `gh-pages` 브랜치에 커밋·푸시하면 배포됩니다. `main`은 Slack 기능이 포함된 원본을 유지합니다.
+
+### 제약
+
+- **Tableau Public에서는 사용할 수 없습니다.** 직접 호스팅하는 network-enabled 익스텐션이기 때문입니다. Tableau Public은 Tableau가 호스팅하는 Sandboxed·Trusted 익스텐션만 허용합니다.
+- **Tableau Server / Cloud**에서 쓰려면 관리자가 위 URL을 대시보드 익스텐션 안전 목록(safe list)에 추가해야 합니다.
+- Tableau Desktop은 `.trex` 파일만 있으면 바로 사용할 수 있습니다.
+
 ## 구현 기능
 
 - UTF-16/탭 원본 로드, 데이터 타입/필수 컬럼 검증, 결측치 기본 처리
